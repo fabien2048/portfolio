@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Lausanne 300 ────────────────────────────────── */
+@font-face {
+  font-family: 'Lausanne';
+  src: url('https://github.com/projectname94/project-feeeels/raw/refs/heads/master/assets/fonts/300/Lausanne-300.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── ABC Diatype Semi Mono ───────────────────────── */
+@font-face {
+  font-family: 'ABC Diatype';
+  src: url('https://raw.githubusercontent.com/7inug1/7inug1.github.io/master/DINAMO_fonts/ABCDiatypeSemi-Mono-Regular-Trial.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'ABC Diatype';
+  src: url('https://raw.githubusercontent.com/7inug1/7inug1.github.io/master/DINAMO_fonts/ABCDiatypeSemi-Mono-Regular-Trial.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── Monument Grotesk Mono ───────────────────────── */
+@font-face {
+  font-family: 'MonumentMono';
+  src: url('./assets/fonts/MonumentGrotesk-Mono.woff2') format('woff2'),
+       url('./assets/fonts/MonumentGrotesk-Mono.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+/* ── Scrollbar ───────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #1A1A1A40; border-radius: 2px; }
+
+/* ── Sélection ───────────────────────────────────── */
+::selection {
+  background: #1A1A1A;
+  color: #F4F4F0;
+}
+
+/* ── Body ────────────────────────────────────────── */
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #0A0A0A;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -o-font-smoothing: antialiased;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* ── Texture de fond globale ── */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/assets/noise-bg.jpg');
+  background-repeat: repeat;
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 99999;
+}
+
+/* ── Links ───────────────────────────────────────── */
+a {
+  text-decoration: none;
+}
+
+/* ── Performance GPU ─────────────────────────────── */
+/* ✅ FIX 4 : will-change pré-composite les éléments animés sur le GPU */
+.hero-video-wrapper {
+  will-change: clip-path, transform;
+}
+.project-thumb {
+  will-change: opacity;
+}
+
+/* ── Masquer les contrôles natifs vidéo (rewind, skip, overlay) ── */
+video::-webkit-media-controls,
+video::-webkit-media-controls-panel,
+video::-webkit-media-controls-play-button,
+video::-webkit-media-controls-start-playback-button,
+video::-webkit-media-controls-overlay-play-button,
+video::-webkit-media-controls-timeline,
+video::-webkit-media-controls-current-time-display,
+video::-webkit-media-controls-time-remaining-display,
+video::-webkit-media-controls-mute-button,
+video::-webkit-media-controls-toggle-closed-captions-button,
+video::-webkit-media-controls-volume-slider,
+video::-webkit-media-controls-rewind-button,
+video::-webkit-media-controls-return-to-realtime-button,
+video::-webkit-media-controls-seek-back-button,
+video::-webkit-media-controls-seek-forward-button,
+video::-webkit-media-controls-fullscreen-button,
+video::-webkit-media-controls-enclosure {
+  display: none !important;
+  -webkit-appearance: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
