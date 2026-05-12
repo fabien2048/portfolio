@@ -9,7 +9,7 @@ const articles = [
     title: "L'Art de l'Animation 3D dans l'Horlogerie de Luxe",
     category: "3D & Horlogerie",
     date: "Mars 2024",
-    image: "/images/projects/thumbnails/cartier-horlogerie-motion-design-luxe.webp",
+    image: "images/projects/thumbnails/cartier-horlogerie-motion-design-luxe.webp",
     excerpt: "Comment les rendus photoréalistes transforment la perception de la mécanique de précision et subliment chaque rouage en une œuvre d'art numérique."
   },
   {
@@ -17,7 +17,7 @@ const articles = [
     title: "Comment le Motion Design 2D Réinvente la Cosmétique",
     category: "2D & Beauté",
     date: "Février 2024",
-    image: "/images/projects/thumbnails/ysl-beauty-motion-design-freelance.webp",
+    image: "images/projects/thumbnails/ysl-beauty-motion-design-freelance.webp",
     excerpt: "L'utilisation de la typographie cinétique et des animations vectorielles pour créer des campagnes dynamiques et subversives adaptées aux nouveaux codes sociaux."
   },
   {
@@ -25,7 +25,7 @@ const articles = [
     title: "La Frontière Floue entre Réalité et CGI dans le Parfum",
     category: "CGI & Parfums",
     date: "Janvier 2024",
-    image: "/images/projects/thumbnails/dior-snow-cosmetiques-motion-design.webp",
+    image: "images/projects/thumbnails/dior-snow-cosmetiques-motion-design.webp",
     excerpt: "L'évolution fulgurante des simulations de fluides et de réfractions lumineuses pour représenter l'essence même des fragrances de luxe sans utiliser de caméra."
   },
   {
@@ -33,7 +33,7 @@ const articles = [
     title: "L'Impact des Réseaux Sociaux sur la Direction Artistique",
     category: "Socials & Luxe",
     date: "Novembre 2023",
-    image: "/images/projects/thumbnails/nuxe-cosmetiques-motion-design-paris.jpg",
+    image: "images/projects/thumbnails/nuxe-cosmetiques-motion-design-paris.jpg",
     excerpt: "L'adaptation des formats et l'émergence des contenus premium ultra-courts pour capter l'attention sur des plateformes comme Instagram et TikTok."
   },
   {
@@ -41,7 +41,7 @@ const articles = [
     title: "Le Futur de la Haute Joaillerie : Rendu Temps Réel et Metaverse",
     category: "Web3 & Luxe",
     date: "Octobre 2023",
-    image: "/images/projects/thumbnails/martell-metavers-luxe-3d-animation.png",
+    image: "images/projects/thumbnails/martell-metavers-luxe-3d-animation.png",
     excerpt: "L'intégration des parures dans des espaces virtuels et l'expérience client repensée par le motion design immersif et interactif."
   }
 ];

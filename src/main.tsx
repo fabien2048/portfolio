@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
+import { HashRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.tsx'
 
@@ -15,17 +15,17 @@ if (rootElement) {
     hydrateRoot(
       rootElement,
       <StrictMode>
-        <BrowserRouter>
+        <HashRouter>
           <App />
-        </BrowserRouter>
+        </HashRouter>
       </StrictMode>
     );
   } else {
     createRoot(rootElement).render(
       <StrictMode>
-        <BrowserRouter>
+        <HashRouter>
           <App />
-        </BrowserRouter>
+        </HashRouter>
       </StrictMode>
     );
   }

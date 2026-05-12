@@ -207,7 +207,7 @@ export default function About() {
                   transition={{ duration: 1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
                   className="relative w-[50vw] md:w-[22vw] aspect-[2/1] mt-4 md:mt-6 md:mr-8 mb-4 md:mb-0 overflow-hidden"
                 >
-                  <img src="/images/fabien-bouadi-portrait.png" className="absolute inset-0 w-full h-full object-cover object-top" alt="Fabien Bouadi" />
+                  <img src="images/fabien-bouadi-portrait.png" className="absolute inset-0 w-full h-full object-cover object-top" alt="Fabien Bouadi" />
                 </motion.figure>
                 <div>
                   <div className="block overflow-hidden"><LuxuryTitle text="ABOUT" isActive={isHeroActive} delay={0.3} /></div>

@@ -127,7 +127,7 @@ export function GuideFreelance2026() {
       h1={<>Guide Freelance Motion Designer 2026 <span className="block text-[#1A1A1A]/40 text-[0.6em] mt-2">Le métier de motion designer paris en 2026</span></>}
     >
       <div className="mb-12 rounded-2xl overflow-hidden shadow-2xl shadow-black/5">
-        <img src="/images/guide-freelance-2026-hero.png" alt="Motion designer working in a Parisian studio" className="w-full h-auto" />
+        <img src="images/guide-freelance-2026-hero.png" alt="Motion designer working in a Parisian studio" className="w-full h-auto" />
       </div>
 
       <p className="text-[1.2em] font-medium text-[#1A1A1A] leading-tight italic border-l-4 border-[#00FF66] pl-6 py-2 mb-12">
@@ -143,7 +143,7 @@ export function GuideFreelance2026() {
       </p>
 
       <div className="my-16 rounded-2xl overflow-hidden">
-        <img src="/images/guide-freelance-2026-deliverables.png" alt="Motion design deliverables on a desk" className="w-full h-auto" />
+        <img src="images/guide-freelance-2026-deliverables.png" alt="Motion design deliverables on a desk" className="w-full h-auto" />
       </div>
 
       <h2 className="text-3xl md:text-4xl font-medium mt-16 mb-8 tracking-tight">L'IA : Menace Fantasmée ou Levier Réel ?</h2>

@@ -4,11 +4,11 @@ import gsap from 'gsap';
 import { useLenis } from 'lenis/react';
 
 const INTRO_IMAGES = [
-  "/images/projects/thumbnails/yves-saint-laurent-motion-design-luxe.webp",
-  "/images/projects/thumbnails/dior-backstage-motion-design-paris.webp",
-  "/images/projects/thumbnails/cartier-horlogerie-motion-design-luxe.webp",
-  "/images/projects/thumbnails/prada-moodtape-motion-design.webp",
-  "/images/projects/thumbnails/lancome-beauty-motion-design-paris.webp"
+  "images/projects/thumbnails/yves-saint-laurent-motion-design-luxe.webp",
+  "images/projects/thumbnails/dior-backstage-motion-design-paris.webp",
+  "images/projects/thumbnails/cartier-horlogerie-motion-design-luxe.webp",
+  "images/projects/thumbnails/prada-moodtape-motion-design.webp",
+  "images/projects/thumbnails/lancome-beauty-motion-design-paris.webp"
 ];
 
 export default function Intro({ onComplete }: { onComplete?: () => void }) {
