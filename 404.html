@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/portfolio/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fabien Bouadi — Portfolio</title>
+    <!-- Script de redirection pour gérer le routage SPA sur GitHub Pages -->
+    <script type="text/javascript">
+      // On récupère le chemin actuel
+      var pathSegment = window.location.pathname.split('/portfolio/')[1] || '';
+      // On redirige vers la racine avec le chemin en paramètre
+      window.location.replace('/portfolio/?p=' + pathSegment);
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
