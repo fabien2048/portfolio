@@ -1,44 +1,42 @@
 // src/pages/Playground.tsx
-import { useEffect, useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Helmet } from 'react-helmet-async';
+import { useLenis } from 'lenis/react';
+import { useNavigationType } from 'react-router-dom';
 import PageTransition from '../components/PageTransition';
 import { playgroundItems } from '../data/playground';
+import { useLazyVideo } from '../hooks/useLazyVideo';
 
 function LazyVideo({ src }: { src: string }) {
-  const ref = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          // Repart depuis le début à chaque fois qu'il entre dans la vue
-          el.currentTime = 0;
-          if (!el.src) el.src = src;
-          el.play().catch(() => {});
-        } else {
-          el.pause();
-        }
-      },
-      { threshold: 0.15 }
-    );
-
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [src]);
+  const { videoRef, shouldLoad } = useLazyVideo({
+    threshold: 0.15,
+    rootMargin: '200px 0px',
+  });
 
   return (
-    <video
-      ref={ref}
-      loop
-      muted
-      playsInline
-      preload="none"
-      className="w-full h-auto block"
-    />
+    <div className="relative w-full h-full">
+      <video
+        ref={videoRef}
+        src={shouldLoad ? src : undefined}
+        loop
+        muted
+        playsInline
+        preload="none"
+        title={src.split('/').pop()?.split('-')[0] || "Animation Playground"}
+        {...({ 
+          disablePictureInPicture: true, 
+          disableRemotePlayback: true,
+          'x-webkit-airplay': 'deny', 
+          'webkit-playsinline': 'true',
+          'disablevideopopout': 'true'
+        } as any)}
+        controlsList="nodownload nofullscreen noremoteplayback noplaybackrate noseek nopip"
+        className="w-full h-auto block pointer-events-none select-none"
+      />
+      {/* Overlay protecteur anti-Opera/Safari */}
+      <div className="absolute inset-0 z-10 bg-transparent pointer-events-auto" onContextMenu={e => e.preventDefault()} />
+    </div>
   );
 }
 
@@ -55,6 +53,33 @@ function SimpleImage({ src, alt }: { src: string; alt: string }) {
 }
 
 export default function Playground() {
+  const lenis = useLenis();
+
+  // Force scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true, force: true });
+    }
+  }, [lenis]);
+
+  const navType = useNavigationType();
+  
+  useEffect(() => {
+    if (navType === 'POP') return;
+    // Reset robuste au montage de la page
+    window.scrollTo(0, 0);
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true, force: true });
+    }
+    // Petit délai de sécurité pour surcharger react-router s'il tente une restauration
+    const t = setTimeout(() => {
+      window.scrollTo(0, 0);
+      if (lenis) lenis.scrollTo(0, { immediate: true, force: true });
+    }, 50);
+    return () => clearTimeout(t);
+  }, [lenis, navType]);
+
   return (
     <PageTransition>
       <Helmet>
@@ -76,15 +101,19 @@ export default function Playground() {
           </motion.h1>
         </div>
 
-        <motion.p
+        <motion.div
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="text-[12px] text-[#1A1A1A]/50 uppercase tracking-widest font-lausanne mb-14 md:mb-20"
+          className="text-[clamp(18px,2vw,22px)] text-[#1A1A1A] font-lausanne leading-[1.3] mb-14 md:mb-20"
         >
-          Expérimentations et travaux personnels,<br />
-          collectés au fil des années{' '}
-          <span className="font-medium text-[#1A1A1A]">[ 2018 — 2025 ]</span>
-        </motion.p>
+          <p>
+            Experiments and personal<br />
+            work collected over the years
+          </p>
+          <p className="mt-4 opacity-70">
+            [2018 — 2026]
+          </p>
+        </motion.div>
 
         {/* Masonry CSS columns — 2 colonnes desktop, 1 mobile */}
         <div style={{
@@ -102,7 +131,10 @@ export default function Playground() {
               transition={{ duration: 0.7, delay: (i % 4) * 0.08, ease: [0.22, 1, 0.36, 1] }}
               style={{ breakInside: 'avoid', marginBottom: '16px', display: 'inline-block', width: '100%' }}
             >
-              <div className="w-full overflow-hidden bg-[#EBEBEB] border border-[#1A1A1A]/10 rounded-lg">
+              <div 
+                className="w-full overflow-hidden bg-[#EBEBEB] border border-[#1A1A1A]/10 squircle"
+                style={{ '--squircle-radius': '12px' } as React.CSSProperties}
+              >
                 {item.type === 'video'
                   ? <LazyVideo src={item.src} />
                   : <SimpleImage src={item.src} alt={item.title} />

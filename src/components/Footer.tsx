@@ -1,16 +1,34 @@
-// src/components/Footer.tsx
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useNavigateWithMask } from '../hooks/useNavigateWithMask';
+import gsap from 'gsap';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
+
+gsap.registerPlugin(ScrollToPlugin);
 
 const LogoSVG = ({ className }: { className?: string }) => (
-  <svg className="w-full h-auto text-current" fill="none" viewBox="0 0 1352 182" width="100%" xmlns="http://www.w3.org/2000/svg"><path d="M43.25 49.75H68V68H43.5V179H21.5V68H0V49.75H21.5V25.25C21.5 11 32.5 0.5 49.75 0.5H66.5V19.25H53.75C46.75 19.25 43.25 22.25 43.25 28.5V49.75Z" fill="currentColor"></path><path d="M186.078 92.25V161.5C186.078 168.75 186.828 174.5 188.078 179H165.578C164.828 174.5 164.578 165 164.578 150.25H164.328C160.328 171 143.828 182 119.078 182C79.5781 182 72.0781 161.25 72.0781 144.75C72.0781 128.5 80.5781 117 93.5781 112C100.328 109.5 106.578 107.75 112.828 106.5C119.078 105.25 125.578 104.25 132.578 103.5C139.828 102.75 144.578 102 146.828 101.25C161.578 97 163.578 93.75 163.578 84C163.578 72 152.578 65.25 133.328 65.25C120.328 65.25 111.578 69 107.828 75.25C104.578 81.25 104.328 83 103.578 87.75H81.0781C82.0781 79.5 83.5781 73.5 85.8281 69.25C93.5781 54.25 109.328 46.75 132.828 46.75C151.578 46.75 165.828 52.25 172.828 58.5C176.578 61.75 179.328 65.5 181.328 70.25C185.578 79.25 186.078 85 186.078 92.25ZM163.578 119V98.25C161.328 109.5 151.578 113.75 127.828 118.5C104.828 122.75 95.3281 128.25 95.3281 144.25C95.3281 156.25 105.328 164.5 121.578 164.5C149.328 164.5 163.578 151.75 163.578 119Z" fill="currentColor"></path><path d="M268.338 46.75C287.338 46.75 301.838 53.25 311.838 66.25C322.088 79 327.088 95.25 327.088 114.75C327.088 134 322.088 150.25 311.838 163C301.588 175.75 287.088 182 268.088 182C248.338 182 234.588 172.75 226.338 154.25H225.838V179H204.088V0.5H226.838L226.338 75.5H227.088C231.838 56.75 249.088 46.75 268.338 46.75ZM265.338 163.25C278.838 163.25 288.588 158.5 294.838 149C301.088 139.25 304.088 127.5 304.088 113.25C304.088 100 300.838 88.75 294.088 79.75C287.588 70.5 277.838 66 264.838 66C240.588 66 226.838 84.25 226.088 111V112.5C226.088 126.75 229.088 139 235.088 148.75C241.338 158.5 251.338 163.25 265.338 163.25Z" fill="currentColor"></path><path d="M362.619 0.5V26.5H339.619V0.5H362.619ZM339.869 179V49.75H362.369V179H339.869Z" fill="currentColor"></path><path d="M439.098 46.75C485.848 46.75 500.848 89.5 499.348 121H397.098C399.348 149.25 413.598 163.25 439.848 163.25C458.098 163.25 471.348 154.75 475.098 138H497.098C491.348 166.25 469.848 182 439.848 182C398.848 182 375.848 155 374.598 114C374.598 94.75 380.848 78.75 393.098 66C405.348 53.25 420.848 46.75 439.098 46.75ZM397.848 102H476.598C475.348 81 460.348 65.25 439.098 65.25C418.098 65.25 401.848 80 397.848 102Z" fill="currentColor"></path><path d="M574.996 46.75C607.746 46.75 624.246 65 624.246 94V179H601.746V96.25C601.746 73.5 590.996 65.5 571.996 65.5C546.746 65.5 533.746 78.25 533.746 110.5V179H511.246V49.75H532.496V77.75H532.996C538.996 57 554.996 46.75 574.996 46.75Z" fill="currentColor"></path><path d="M734.48 46.75C753.48 46.75 767.98 53.25 777.98 66.25C788.23 79 793.23 95.25 793.23 114.75C793.23 134 788.23 150.25 777.98 163C767.73 175.75 753.23 182 734.23 182C714.48 182 700.73 172.75 692.48 154.25H691.98V179H670.23V0.5H692.98L692.48 75.5H693.23C697.98 56.75 715.23 46.75 734.48 46.75ZM731.48 163.25C744.98 163.25 754.73 158.5 760.98 149C767.23 139.25 770.23 127.5 770.23 113.25C770.23 100 766.98 88.75 760.23 79.75C753.73 70.5 743.98 66 730.98 66C706.73 66 692.98 84.25 692.23 111V112.5C692.23 126.75 695.23 139 701.23 148.75C707.48 158.5 717.48 163.25 731.48 163.25Z" fill="currentColor"></path><path d="M797.762 114.5C797.762 94.75 803.512 78.75 814.762 66C826.012 53.25 841.762 46.75 861.512 46.75C881.262 46.75 897.012 53.25 908.262 66C919.512 78.75 925.262 94.75 925.262 114.5C925.262 134 919.512 150.25 908.262 163C897.012 175.75 881.262 182 861.512 182C841.762 182 826.012 175.75 814.762 163C803.512 150.25 797.762 134 797.762 114.5ZM902.762 114.5C902.762 99.25 898.762 87.25 890.762 78.5C883.012 69.75 873.262 65.25 861.512 65.25C849.762 65.25 840.012 69.75 832.012 78.5C824.262 87.25 820.262 99.25 820.262 114.5C820.262 129.5 824.262 141.5 832.012 150.25C840.012 159 849.762 163.25 861.512 163.25C873.262 163.25 883.012 159 890.762 150.25C898.762 141.5 902.762 129.5 902.762 114.5Z" fill="currentColor"></path><path d="M1028.8 118.25V49.75H1051.3V179H1030.05V151H1029.55C1023.55 171.75 1007.55 182 987.555 182C954.805 182 938.305 163.75 938.305 134.75V49.75H960.805V132.5C960.805 155.25 971.555 163.25 990.555 163.25C1015.8 163.25 1028.8 150.5 1028.8 118.25Z" fill="currentColor"></path><path d="M1176.19 92.25V161.5C1176.19 168.75 1176.94 174.5 1178.19 179H1155.69C1154.94 174.5 1154.69 165 1154.69 150.25H1154.44C1150.44 171 1133.94 182 1109.19 182C1069.69 182 1062.19 161.25 1062.19 144.75C1062.19 128.5 1070.69 117 1083.69 112C1090.44 109.5 1096.69 107.75 1102.94 106.5C1109.19 105.25 1115.69 104.25 1122.69 103.5C1129.94 102.75 1134.69 102 1136.94 101.25C1151.69 97 1153.69 93.75 1153.69 84C1153.69 72 1142.69 65.25 1123.44 65.25C1110.44 65.25 1101.69 69 1097.94 75.25C1094.69 81.25 1094.44 83 1093.69 87.75H1071.19C1072.19 79.5 1073.69 73.5 1075.94 69.25C1083.69 54.25 1099.44 46.75 1122.94 46.75C1141.69 46.75 1155.94 52.25 1162.94 58.5C1166.69 61.75 1169.44 65.5 1171.44 70.25C1175.69 79.25 1176.19 85 1176.19 92.25ZM1153.69 119V98.25C1151.44 109.5 1141.69 113.75 1117.94 118.5C1094.94 122.75 1085.44 128.25 1085.44 144.25C1085.44 156.25 1095.44 164.5 1111.69 164.5C1139.44 164.5 1153.69 151.75 1153.69 119Z" fill="currentColor"></path><path d="M1288.7 75.5L1288.2 0.5H1310.7V179H1288.95V154.25H1288.45C1280.2 172.75 1266.45 182 1246.7 182C1227.7 182 1213.2 175.75 1202.95 163C1192.7 150.25 1187.7 134 1187.7 114.75C1187.7 95.25 1192.7 79 1202.7 66.25C1212.95 53.25 1227.45 46.75 1246.45 46.75C1265.7 46.75 1282.95 56.75 1287.7 75.5H1288.7ZM1249.45 163.25C1263.45 163.25 1273.45 158.5 1279.45 148.75C1285.7 139 1288.7 126.75 1288.7 112.5V110.75C1287.95 84 1274.2 66 1249.95 66C1236.95 66 1227.2 70.5 1220.45 79.75C1213.95 88.75 1210.7 100 1210.7 113.25C1210.7 127.5 1213.7 139.25 1219.95 149C1226.2 158.5 1235.95 163.25 1249.45 163.25Z" fill="currentColor"></path><path className="path-6" d="M1351.75 0.5V26.5H1328.75V0.5H1351.75ZM1329 179V49.75H1351.5V179H1329Z" fill="currentColor"></path></svg>
+  <svg className={className} viewBox="0 0 1840 290" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" aria-label="Logo Fabien Bouadi">
+    <path opacity="0.73" d="M1.02755 283.76V282.658C15.3559 278.984 15.7233 273.84 15.7233 224.609V116.228H0.660156V114.758C13.8864 112.554 15.7233 108.513 15.7233 80.2232V72.8754C15.7233 21.8075 40.3387 5.64209 62.7498 5.64209C77.0782 5.64209 89.937 10.4182 89.937 20.3379C89.937 25.8488 87.3653 30.2576 80.3848 30.2576C73.0369 30.2576 70.0977 26.951 68.9955 20.7053C67.1586 10.4182 67.1586 7.11167 59.4433 7.11167C47.6866 7.11167 42.9105 17.7661 42.9105 54.873V114.758H76.3434V116.228H42.9105V224.609C42.9105 273.84 43.2779 278.616 62.7498 282.658V283.76H1.02755Z" fill="currentColor"/>
+    <path opacity="0.73" d="M121.457 285.23C97.9435 285.23 80.3086 273.473 80.3086 249.96C80.3086 221.303 106.026 219.099 136.153 205.505L149.379 199.627C171.422 189.707 175.464 177.951 175.464 169.133V145.987C175.464 118.065 157.461 113.657 143.133 113.657C124.763 113.657 121.824 117.698 117.783 124.678C113.007 133.496 108.598 140.844 99.7805 140.844C92.8 140.844 89.8609 136.435 89.8609 130.924C89.8609 119.168 117.048 112.187 143.5 112.187C172.525 112.187 202.651 118.433 202.651 152.6V231.59C202.651 274.208 205.223 281.923 216.245 281.923C220.653 281.923 225.429 280.454 228.736 277.882L229.103 278.617C226.532 281.189 220.653 285.597 207.06 285.597C183.547 285.597 175.464 273.841 175.464 258.043L169.953 263.554C156.359 276.78 143.5 285.23 121.457 285.23ZM108.231 245.551C108.231 268.697 116.313 280.454 132.846 280.454C146.072 280.454 155.625 275.678 169.953 262.084L175.464 256.573V175.746C173.994 182.727 168.483 192.279 149.746 200.729L136.52 206.607C114.476 216.527 108.231 229.386 108.231 245.551Z" fill="currentColor"/>
+    <path opacity="0.73" d="M315.49 287.067C278.385 287.067 262.954 268.697 250.83 268.697C246.054 268.697 244.584 272.371 243.482 274.943H242.38V72.5084C242.38 19.6035 242.747 22.1753 226.582 22.1753V21.0731L269.567 0.499023V150.396L279.487 139.374C299.692 117.331 315.123 112.187 329.818 112.187C365.823 112.187 399.256 143.048 399.256 195.586C399.256 254.001 358.843 287.067 315.49 287.067ZM277.282 275.678C287.202 281.556 298.224 285.597 315.49 285.597C341.575 285.597 370.599 266.86 370.599 201.097C370.599 130.557 346.719 115.494 324.675 115.494C312.918 115.494 299.692 119.168 279.487 141.211L269.567 152.233V255.838C269.567 265.758 270.302 271.636 277.282 275.678Z" fill="currentColor"/>
+    <path opacity="0.73" d="M441.201 80.5911C432.384 80.5911 425.403 73.6106 425.403 64.7931C425.403 55.9756 432.384 48.9951 441.201 48.9951C450.019 48.9951 456.999 55.9756 456.999 64.7931C456.999 73.6106 450.019 80.5911 441.201 80.5911ZM413.279 283.76V282.658C427.608 278.984 427.975 273.841 427.975 224.61V184.564C427.975 135.7 427.975 134.598 414.381 134.598V133.496L455.162 110.35V224.61C455.162 273.841 455.53 278.617 471.328 282.658V283.76H413.279Z" fill="currentColor"/>
+    <path opacity="0.73" d="M573.961 286.332C530.976 286.332 486.521 256.573 486.521 197.79C486.521 140.844 530.241 111.452 565.511 111.452C593.801 111.452 622.457 128.352 630.173 162.52H517.75C515.546 172.072 514.443 183.462 514.443 196.688C514.443 263.186 545.672 283.76 579.84 283.76C598.944 283.76 615.477 276.78 627.601 266.86L628.703 267.962C615.844 278.249 598.577 286.332 573.961 286.332ZM565.511 112.922C548.611 112.922 526.935 125.046 518.117 161.05H607.027C605.19 125.781 583.881 112.922 565.511 112.922Z" fill="currentColor"/>
+    <path opacity="0.73" d="M642.543 283.76V282.658C656.871 278.984 657.239 273.84 657.239 224.609V184.563C657.239 136.435 657.239 134.598 643.645 134.598V133.495L683.691 110.35V150.028L694.713 139.741C717.124 119.167 733.657 112.187 749.822 112.187C777.744 112.187 792.807 125.045 792.807 156.274V224.609C792.807 273.84 792.807 278.616 807.503 282.658V283.76H750.19V282.658C765.988 278.616 766.355 273.84 766.355 224.609V151.13C766.355 125.045 757.538 115.861 741.74 115.861C729.983 115.861 717.124 121.004 694.713 141.578L683.691 151.865V224.609C683.691 273.84 684.059 278.616 699.857 282.658V283.76H642.543Z" fill="currentColor"/>
+    <path opacity="0.73" d="M982.111 287.067C945.004 287.067 929.573 268.697 917.449 268.697C912.673 268.697 911.203 272.371 910.101 274.943H908.999V72.5084C908.999 19.6035 909.367 22.1753 893.201 22.1753V21.0731L936.186 0.499023V150.396L946.106 139.374C966.313 117.331 981.743 112.187 996.439 112.187C1032.44 112.187 1065.88 143.048 1065.88 195.586C1065.88 254.001 1025.46 287.067 982.111 287.067ZM943.902 275.678C953.821 281.556 964.843 285.597 982.111 285.597C1008.2 285.597 1037.22 266.86 1037.22 201.097C1037.22 130.557 1013.34 115.494 991.295 115.494C979.539 115.494 966.313 119.168 946.106 141.211L936.186 152.233V255.838C936.186 265.758 936.921 271.636 943.902 275.678Z" fill="currentColor"/>
+    <path opacity="0.73" d="M1165.09 287.067C1129.45 287.067 1083.9 257.675 1083.9 200.729C1083.9 144.15 1129.45 111.084 1165.09 111.084C1201.1 111.084 1246.65 144.15 1246.65 200.729C1246.65 257.675 1201.1 287.067 1165.09 287.067ZM1165.09 285.597C1191.54 285.597 1218 265.39 1218 200.729C1218 136.435 1191.54 112.554 1165.09 112.554C1139.01 112.554 1112.55 136.435 1112.55 200.729C1112.55 265.39 1139.01 285.597 1165.09 285.597Z" fill="currentColor"/>
+    <path opacity="0.73" d="M1320.54 286.332C1292.62 286.332 1277.19 273.473 1277.19 242.244V191.911C1277.19 136.067 1277.19 134.598 1263.59 134.598V133.495L1304.37 110.35V254.736C1304.37 276.779 1313.56 282.658 1328.62 282.658C1338.17 282.658 1351.77 280.821 1376.02 258.41L1386.67 248.857V191.911C1386.67 136.067 1386.67 134.598 1373.08 134.598V133.495L1413.86 110.35V224.609C1413.86 273.84 1413.86 278.984 1432.23 282.658V283.76H1386.67V250.694L1376.02 260.247C1352.87 281.556 1336.34 286.332 1320.54 286.332Z" fill="currentColor"/>
+    <path opacity="0.73" d="M1483.76 285.23C1460.25 285.23 1442.61 273.473 1442.61 249.96C1442.61 221.303 1468.33 219.099 1498.46 205.505L1511.68 199.627C1533.73 189.707 1537.77 177.951 1537.77 169.133V145.987C1537.77 118.065 1519.76 113.657 1505.44 113.657C1487.07 113.657 1484.13 117.698 1480.09 124.678C1475.31 133.496 1470.9 140.844 1462.08 140.844C1455.1 140.844 1452.16 136.435 1452.16 130.924C1452.16 119.168 1479.35 112.187 1505.8 112.187C1534.83 112.187 1564.95 118.433 1564.95 152.6V231.59C1564.95 274.208 1567.53 281.923 1578.55 281.923C1582.96 281.923 1587.73 280.454 1591.04 277.882L1591.41 278.617C1588.83 281.189 1582.96 285.597 1569.36 285.597C1545.85 285.597 1537.77 273.841 1537.77 258.043L1532.26 263.554C1518.66 276.78 1505.8 285.23 1483.76 285.23ZM1470.53 245.551C1470.53 268.697 1478.62 280.454 1495.15 280.454C1508.37 280.454 1517.93 275.678 1532.26 262.084L1537.77 256.573V175.746C1536.3 182.727 1530.79 192.279 1512.05 200.729L1498.82 206.607C1476.78 216.527 1470.53 229.386 1470.53 245.551Z" fill="currentColor"/>
+    <path opacity="0.73" d="M1668.65 285.965C1633.38 285.965 1595.91 258.41 1595.91 202.566C1595.91 144.15 1632.28 112.187 1677.47 112.187C1691.8 112.187 1708.7 118.433 1725.23 132.761V72.5084C1725.23 23.2775 1725.6 22.1753 1709.43 22.1753V21.0731L1752.42 0.499023V224.61C1752.42 273.841 1752.42 278.984 1770.79 282.658V283.76H1725.23V252.899L1720.82 258.41C1706.49 276.045 1691.06 285.965 1668.65 285.965ZM1624.56 197.055C1624.56 271.269 1654.32 282.291 1673.8 282.291C1691.43 282.291 1705.76 275.31 1720.82 256.573L1725.23 251.062V134.598C1706.49 118.8 1691.06 113.657 1677.47 113.657C1649.92 113.657 1624.56 131.292 1624.56 197.055Z" fill="currentColor"/>
+    <path opacity="0.73" d="M1809.6 80.5911C1800.79 80.5911 1793.81 73.6106 1793.81 64.7931C1793.81 55.9756 1800.79 48.9951 1809.6 48.9951C1818.42 48.9951 1825.4 55.9756 1825.4 64.7931C1825.4 73.6106 1818.42 80.5911 1809.6 80.5911ZM1781.68 283.76V282.658C1796.01 278.984 1796.38 273.84 1796.38 224.61V184.564C1796.38 135.7 1796.38 134.598 1782.78 134.598V133.496L1823.56 110.35V224.61C1823.56 273.841 1823.93 278.617 1839.73 282.658V283.76H1781.68Z" fill="currentColor"/>
+  </svg>
 );
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-  const [time, setTime] = useState('');
+  const [time, setTime] = useState<{hour: string, minute: string} | string>('');
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'' | 'submitting' | 'success'>('');
+  const { pathname } = useLocation();
   const go = useNavigateWithMask();
 
   const handleSubscribe = async (e: React.FormEvent) => {
@@ -39,13 +57,19 @@ export default function Footer() {
 
   useEffect(() => {
     const updateClock = () => {
-      const parisTime = new Date().toLocaleTimeString('en-US', {
+      const now = new Date();
+      const formatter = new Intl.DateTimeFormat('en-GB', {
         timeZone: 'Europe/Paris',
         hour: '2-digit',
         minute: '2-digit',
         hour12: false,
       });
-      setTime(parisTime);
+      
+      const parts = formatter.formatToParts(now);
+      const hour = parts.find(p => p.type === 'hour')?.value || '00';
+      const minute = parts.find(p => p.type === 'minute')?.value || '00';
+      
+      setTime({ hour, minute });
     };
     updateClock();
     const interval = setInterval(updateClock, 1000);
@@ -57,19 +81,46 @@ export default function Footer() {
       {/* ── Desktop Footer ── */}
       <footer className="hidden md:block relative z-30 bg-[#F4F4F0] text-[#1A1A1A] pt-12 lg:pt-20 overflow-hidden">
         <div className="px-4 md:px-6 lg:px-8 xl:px-12">
-          <div className="grid grid-cols-3 items-center text-[19px] font-medium tracking-tight font-sans">
+          <div className="grid grid-cols-3 items-center text-[19px] font-medium tracking-tight font-presura uppercase">
             <div className="flex items-center gap-0 justify-start">
-              <span className="whitespace-nowrap">Paris, FR&nbsp;{time}</span>
+              <button
+                onClick={() => {
+                  window.scrollTo(0, 0);
+                  go('/blog-motion-luxe');
+                }}
+                className="group relative cursor-pointer outline-none bg-transparent border-0 text-inherit font-inherit p-0 text-left"
+              >
+                <span className="whitespace-nowrap block transition-opacity duration-300 group-hover:opacity-0">
+                  PARIS, FR&nbsp;{typeof time === 'object' ? (
+                    <>
+                      {time.hour}
+                      <span className="animate-[blink_2s_infinite] font-sans" style={{ margin: '0 0.05em' }}>
+                        :
+                      </span>
+                      {time.minute}
+                    </>
+                  ) : time}
+                </span>
+                <span className="whitespace-nowrap absolute inset-0 flex items-center justify-start opacity-0 transition-opacity duration-300 group-hover:opacity-100 underline underline-offset-4">
+                  VOIR LE BLOG
+                </span>
+              </button>
             </div>
             <div className="text-center whitespace-nowrap">
               Copyright © Fabien Bouadi {currentYear}
             </div>
             <div className="flex justify-end">
               <button
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="hover:opacity-50 transition-opacity whitespace-nowrap"
+                onClick={() => {
+                  gsap.to(window, {
+                    duration: 1.8,
+                    scrollTo: { y: 0, autoKill: false },
+                    ease: "power4.inOut"
+                  });
+                }}
+                className="hover:opacity-50 transition-opacity whitespace-nowrap bg-transparent border-0 cursor-pointer font-inherit text-inherit uppercase p-0"
               >
-                ↑ Back to top
+                ↑ RETOUR EN HAUT
               </button>
             </div>
           </div>
@@ -78,7 +129,8 @@ export default function Footer() {
           <div className="mt-10 lg:mt-16 pb-8 lg:pb-12 w-full">
             <button
               onClick={() => go('/')}
-              className="block w-full text-[#1A1A1A] hover:opacity-50 transition-opacity duration-500 bg-transparent border-0 cursor-pointer p-0"
+              className={`block w-full text-[#1A1A1A] transition-opacity duration-500 bg-transparent border-0 p-0 ${pathname === '/' ? 'cursor-default' : 'cursor-pointer hover:opacity-50'}`}
+              style={{ pointerEvents: pathname === '/' ? 'none' : 'auto' }}
             >
               <LogoSVG className="w-full h-auto fill-current" />
             </button>
@@ -87,22 +139,22 @@ export default function Footer() {
       </footer>
 
       {/* ── Mobile Footer ── */}
-      <footer className="block md:hidden relative z-30 bg-[#1A1A1A] text-[#F4F4F0] pt-12 pb-8 px-2">
+      <footer className="block md:hidden relative z-30 bg-black text-[#F4F4F0] pt-12 pb-8 px-2">
         <div className="flex justify-between items-start mb-24">
           <div className="flex flex-col gap-2">
-            <button onClick={() => go('/')} className="text-4xl font-sans font-medium tracking-tighter bg-transparent border-0 text-[#F4F4F0] cursor-pointer text-left">Home</button>
-            <button onClick={() => go('/')} className="text-4xl font-sans font-medium tracking-tighter bg-transparent border-0 text-[#F4F4F0] cursor-pointer text-left">Work</button>
-            <button onClick={() => go('/about')} className="text-4xl font-sans font-medium tracking-tighter bg-transparent border-0 text-[#F4F4F0] cursor-pointer text-left">About</button>
+            <button onClick={() => go('/')} className="text-4xl font-sans font-medium tracking-tighter bg-transparent border-0 text-[#F4F4F0] cursor-pointer text-left">Accueil</button>
+            <button onClick={() => go('/')} className="text-4xl font-sans font-medium tracking-tighter bg-transparent border-0 text-[#F4F4F0] cursor-pointer text-left">Projets</button>
+            <button onClick={() => go('/about')} className="text-4xl font-sans font-medium tracking-tighter bg-transparent border-0 text-[#F4F4F0] cursor-pointer text-left">À propos</button>
             <button onClick={() => go('/playground')} className="text-4xl font-sans font-medium tracking-tighter bg-transparent border-0 text-[#F4F4F0] cursor-pointer text-left">Playground</button>
             <a href="mailto:f.bouadi@gmail.com" className="text-4xl font-sans font-medium tracking-tighter text-[#F4F4F0]">Contact</a>
           </div>
-          <div className="flex flex-col gap-6 text-sm font-sans text-right">
+          <div className="flex flex-col gap-6 text-sm font-presura text-right">
             <div className="flex flex-col gap-1">
-              <a href="https://www.instagram.com/fabien_bouadi/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-end gap-1 opacity-80">Instagram ↗</a>
+              <a href="https://www.instagram.com/fabien.bouadi/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-end gap-1 opacity-80">Instagram ↗</a>
               <a href="https://www.linkedin.com/in/fabienbouadi" target="_blank" rel="noopener noreferrer" className="flex items-center justify-end gap-1 opacity-80">LinkedIn ↗</a>
             </div>
             <div className="flex flex-col gap-1">
-              <span className="opacity-40">New Business:</span>
+              <span className="opacity-40">Projets :</span>
               <a href="mailto:f.bouadi@gmail.com" className="opacity-80">f.bouadi@gmail.com</a>
             </div>
             <div className="flex flex-col gap-1 mt-4">
@@ -112,7 +164,7 @@ export default function Footer() {
         </div>
 
         <div className="mb-20">
-          <p className="text-sm opacity-80 mb-4">Sign up for our newsletter<br />(No spam)</p>
+          <p className="text-sm font-presura opacity-80 mb-4 uppercase">[Newsletter - Pas de spam]</p>
           <form onSubmit={handleSubscribe} className="relative border-b border-[#F4F4F0]/30 pb-4">
             <div className="flex justify-between items-center">
               <input
@@ -122,15 +174,15 @@ export default function Footer() {
                 placeholder="Email"
                 disabled={status === 'submitting'}
                 required
-                className="bg-transparent border-none outline-none text-[#F4F4F0] placeholder:text-[#F4F4F0]/30 w-full font-sans disabled:opacity-50"
+                className="bg-transparent border-none outline-none text-[#F4F4F0] placeholder:text-[#F4F4F0]/30 w-full font-presura disabled:opacity-50"
               />
               <button type="submit" disabled={status === 'submitting'} className="text-xl disabled:opacity-50 transition-opacity">
                 {status === 'submitting' ? '...' : '→'}
               </button>
             </div>
             {status === 'success' && (
-              <span className="text-xs text-[#F4F4F0]/70 absolute -bottom-6 left-0">
-                Confirmation sent!
+              <span className="text-xs font-presura text-[#F4F4F0]/70 absolute -bottom-6 left-0">
+                Confirmation envoyée !
               </span>
             )}
           </form>

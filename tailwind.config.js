@@ -7,9 +7,12 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        diatype:  ['"ABC Diatype"', 'sans-serif'],
-        lausanne: ['"Lausanne"', 'sans-serif'],
-        monument: ['MonumentMono', 'monospace'],
+        sans:     ['"PP Neue Montreal"', 'sans-serif'],
+        diatype:  ['ABC Diatype', 'sans-serif'],
+        lausanne: ['"PP Neue Montreal"', 'sans-serif'],
+        basier:   ['Basier', 'monospace'],
+        abc:      ['ABCPlus', 'sans-serif'],
+        presura:  ['GT Presura', 'monospace'],
       },
     },
   },

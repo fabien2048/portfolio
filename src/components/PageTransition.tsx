@@ -1,86 +1,93 @@
 // src/components/PageTransition.tsx
-// Système masque Ross Mason — zéro double animation
-//
-// 3 causes résolues :
-//   1. AnimatePresence supprimé dans App.tsx (gardait 2 composants montés en même temps)
-//   2. hasRun ref → bloque le double-fire de React StrictMode en dev
-//   3. Navbar récrite avec useNavigateWithMask (plus de <Link> qui naviguent sans masque)
+// Transition fluide pour l'arrivée sur une nouvelle page.
 import { ReactNode, useLayoutEffect, useRef } from 'react';
 import { useLenis } from 'lenis/react';
 import gsap from 'gsap';
+import { useNavigationType, useLocation } from 'react-router-dom';
 import Footer from './Footer';
-import { useTransitionMask } from '../context/TransitionContext';
 
 interface PageTransitionProps {
   children: ReactNode;
   scrollToTop?: boolean;
 }
 
+let isInitialLoad = true;
+
 export default function PageTransition({
   children,
-  scrollToTop = true,
+  scrollToTop = false,
 }: PageTransitionProps) {
   const lenis        = useLenis();
-  const { maskRef }  = useTransitionMask();
   const containerRef = useRef<HTMLDivElement>(null);
+  const navType      = useNavigationType();
+  const location     = useLocation();
 
   // Bloque le double-fire de React StrictMode (dev uniquement)
-  // En prod, useLayoutEffect ne tourne qu'une fois — ce ref est no-op
   const hasRun = useRef(false);
 
   useLayoutEffect(() => {
     if (hasRun.current) return;
     hasRun.current = true;
 
-    const mask      = maskRef.current;
     const container = containerRef.current;
     if (!container) return;
 
-    // Reset scroll immédiat
-    if (scrollToTop) {
-      if (lenis) lenis.scrollTo(0, { immediate: true });
-      else window.scrollTo(0, 0);
+    const isFirst = isInitialLoad;
+    isInitialLoad = false;
+    const isBackForward = navType === 'POP' && !isFirst;
+
+    // FORCER le scroll en haut de page systématiquement lors d'un changement de pathname
+    // Sauf si c'est explicitement un retour arrière que l'on veut préserver (optionnel, ici on force quand même car demandé)
+    window.scrollTo(0, 0);
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true, force: true });
+      lenis.start();
     }
+    
+    // Sécurité supplémentaire différée pour écraser les restaurations tardives du navigateur
+    const scrollTimeout = setTimeout(() => {
+      window.scrollTo(0, 0);
+      if (lenis) lenis.scrollTo(0, { immediate: true, force: true });
+    }, 100);
 
-    // gsap.context → cleanup automatique et propre de tous les tweens du scope
     const ctx = gsap.context(() => {
-
-      // Contenu invisible au départ
+      // Contenu invisible au départ (pas de décalage y pour préserver l'animation du header HP)
       gsap.set(container, { opacity: 0 });
 
-      const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
-      if (mask) {
-        // Masque (mis visible par useNavigateWithMask) → disparaît
-        tl.to(mask, {
-          opacity: 0,
-          duration: 0.38,
+      if (isBackForward) {
+        // Retour navigateur : opacité uniquement (durée identique au load classique)
+        tl.to(container, {
+          opacity: 1,
+          duration: 0.45,
+          delay: 0,
           ease: 'power2.inOut',
-          onComplete: () => { gsap.set(mask, { visibility: 'hidden' }); },
-        }, 0);
+        });
+      } else {
+        // ENTER : fade in luxueux du conteneur (Inspiré par la transition .fade-overlay)
+        tl.to(container, {
+          opacity: 1,
+          duration: 0.6,
+          delay: 0,
+          ease: "power2.inOut", // Approximation de l'easing cubique
+        });
+
+        // Animations des sous-éléments [data-anim] (titres, images...)
+        tl.call(() => animatePageContent(container), [], 0.05);
       }
-
-      // Contenu fade in pendant que le masque disparaît
-      tl.to(container, {
-        opacity: 1,
-        duration: 0.3,
-      }, mask ? 0.08 : 0);
-
-      // Animations des éléments [data-anim]
-      tl.call(() => animatePageContent(container), [], mask ? 0.2 : 0.05);
 
     }, container);
 
     return () => {
       ctx.revert();
-      hasRun.current = false;
+      clearTimeout(scrollTimeout);
     };
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [lenis, scrollToTop, navType, location.pathname]);
 
   return (
     <div
+      id="page-transition-container"
       ref={containerRef}
       className="w-full flex-grow flex flex-col"
       style={{ opacity: 0 }}

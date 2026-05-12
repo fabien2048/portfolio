@@ -6,10 +6,31 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "postbuild": "react-snap",
     "preview": "vite preview"
+  },
+  "reactSnap": {
+    "source": "dist",
+    "include": [
+      "/",
+      "/about",
+      "/motion-designer-freelance-paris",
+      "/blog-motion-luxe",
+      "/motion-design-3d",
+      "/direction-artistique",
+      "/moodtapes",
+      "/luxe-beaute-cosmetiques",
+      "/blog/motion-design-marques-luxe",
+      "/guide/animation-3d-cosmetiques",
+      "/article/qu-est-ce-qu-une-moodtape",
+      "/blog/motion-design-vs-animation",
+      "/blog/direction-artistique-video-paris",
+      "/guide/freelance-motion-designer-2026"
+    ]
   },
   "dependencies": {
     "clsx": "^2.1.1",
+    "css-houdini-squircle": "^0.3.0",
     "gsap": "^3.12.5",
     "lenis": "^1.1.14",
     "lucide-react": "^0.447.0",
@@ -26,6 +47,7 @@
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",
+    "react-snap": "^1.23.0",
     "tailwindcss": "^3.4.13",
     "typescript": "^5.5.3",
     "vite": "^5.4.8"

@@ -1,10 +1,17 @@
 // src/pages/About.tsx
-import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
-import { Helmet } from 'react-helmet-async';
+import { motion, AnimatePresence } from 'motion/react';
+import Meta from '../components/Meta';
+import { useLenis } from 'lenis/react';
 import { useEffect, useState, useRef } from 'react';
 import PageTransition from '../components/PageTransition';
 import { useNavigateWithMask } from '../hooks/useNavigateWithMask';
+import { useNavigationType } from 'react-router-dom';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import LuxuryTitle from '../components/LuxuryTitle';
+import { cn } from '../utils/cn';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const SERVICES = [
   {
@@ -31,16 +38,14 @@ const SERVICES = [
 ];
 
 const CLIENTS  = ['Dior', 'Guerlain', 'Lancôme', 'Prada', 'Cacharel', 'Kenzo', 'Nina Ricci', 'Yves Saint Laurent', 'Courrèges', 'Ruinart'];
-const PARTNERS: { name: string; url: string }[] = [
+const PARTNERS = [
   { name: 'Malherbe Design', url: 'https://malherbe.paris' },
   { name: 'Publicis Luxe',   url: 'https://www.publicisluxe.com' },
   { name: 'Onirim',          url: 'https://onirim.com' },
   { name: 'DDB Paris',       url: 'https://www.bbdo.fr' },
   { name: 'Digitas',         url: 'https://www.digitas.com/fr' },
 ];
-const SKILLS   = ['Animation / Design', 'Art Direction', 'Motion Design', 'Lighting & Rendering', 'Octane · Redshift · Arnold'];
 
-// ── Reveal scroll CSS ─────────────────────────────────────────
 function Reveal({ children, delay = 0, className = '' }: {
   children: React.ReactNode; delay?: number; className?: string;
 }) {
@@ -67,7 +72,6 @@ function Reveal({ children, delay = 0, className = '' }: {
   );
 }
 
-// ── ParallaxImage — désactivé sur mobile (touch = janky) ──────
 function ParallaxImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
   const ref    = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -75,7 +79,7 @@ function ParallaxImage({ src, alt, className }: { src: string; alt: string; clas
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   useEffect(() => {
-    if (isMobile) return; // ✅ pas de parallax sur mobile
+    if (isMobile) return;
     const container = ref.current;
     const img = imgRef.current;
     if (!container || !img) return;
@@ -90,7 +94,7 @@ function ParallaxImage({ src, alt, className }: { src: string; alt: string; clas
   }, [isMobile]);
 
   return (
-    <div ref={ref} className={`overflow-hidden ${className ?? ''}`}>
+    <div ref={ref} className={cn("overflow-hidden", className)}>
       <img
         ref={imgRef}
         src={src}
@@ -108,348 +112,298 @@ function ParallaxImage({ src, alt, className }: { src: string; alt: string; clas
   );
 }
 
-// ── Services slider ───────────────────────────────────────────
-function ServicesSlider() {
-  const [active, setActive] = useState(0);
-  const prevRef = useRef(0);
-  const containerMobileRef = useRef<HTMLDivElement>(null);
-  const containerDesktopRef = useRef<HTMLDivElement>(null);
+export default function About() {
+  const lenis = useLenis();
+
+  // Force scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true, force: true });
+    }
+  }, [lenis]);
+  useNavigateWithMask();
+  const navType = useNavigationType();
+  const heroRef = useRef<HTMLElement>(null);
+  const [isHeroActive, setIsHeroActive] = useState(false);
+  const [activeService, setActiveService] = useState(0);
 
   useEffect(() => {
-    const cur = active;
-    const prev = prevRef.current;
-    
-    const animateContainer = (container: HTMLDivElement | null) => {
-      if (!container) return;
-      const imgs = gsap.utils.toArray<HTMLImageElement>('img', container);
-      if (imgs.length === 0) return;
-      
-      const firstRender = cur === prev && !container.hasAttribute('data-gsap-init');
+    if (navType === 'POP') return;
+    window.scrollTo(0, 0);
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true, force: true });
+    }
+    const t = setTimeout(() => {
+      window.scrollTo(0, 0);
+      if (lenis) lenis.scrollTo(0, { immediate: true, force: true });
+    }, 50);
+    return () => clearTimeout(t);
+  }, [lenis, navType]);
 
-      if (firstRender) {
-        container.setAttribute('data-gsap-init', 'true');
-        imgs.forEach((img, i) => {
-          gsap.set(img, {
-            zIndex: i === cur ? 10 : 1,
-            clipPath: i === cur ? 'inset(0% 0% 0% 0%)' : 'inset(0% 100% 0% 0%)'
-          });
-        });
-        return;
-      }
-
-      if (cur === prev) return;
-
-      // On ajuste d'abord les profondeurs
-      imgs.forEach((img, i) => {
-        if (i === cur) gsap.set(img, { zIndex: 10 });
-        else if (i === prev) gsap.set(img, { zIndex: 5 }); // Garder visible sans trou
-        else gsap.set(img, { zIndex: 1, clipPath: 'inset(0% 100% 0% 0%)' });
-      });
-
-      // Seule l'image courante s'anime (wipes over the previous)
-      gsap.killTweensOf(imgs[cur]);
-      gsap.fromTo(
-        imgs[cur],
-        { clipPath: 'inset(0% 100% 0% 0%)' },
-        { 
-          clipPath: 'inset(0% 0% 0% 0%)', 
-          duration: 0.85, 
-          ease: 'power3.inOut' 
-        }
-      );
-    };
-
-    animateContainer(containerMobileRef.current);
-    animateContainer(containerDesktopRef.current);
-
-    prevRef.current = cur;
-  }, [active]);
+  useEffect(() => {
+    if (!heroRef.current) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setIsHeroActive(true); obs.disconnect(); } },
+      { threshold: 0.1 }
+    );
+    obs.observe(heroRef.current);
+    return () => obs.disconnect();
+  }, []);
 
   return (
-    <section className="border-t border-[#1A1A1A]/10 px-4 md:px-6 lg:px-8 xl:px-12 py-16 md:py-28">
-      <Reveal>
-        <p className="text-[12px] uppercase tracking-widest font-lausanne text-[#1A1A1A]/40 mb-10 md:mb-12">
-          [Services List]
-        </p>
-      </Reveal>
+    <PageTransition scrollToTop={true}>
+      <Meta 
+        title="À Propos"
+        description="Découvrez le parcours de Fabien Bouadi, 3D Artist et Motion Designer. 10 ans d'expérience au service du luxe et de l'innovation."
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "Person",
+          "name": "Fabien Bouadi",
+          "jobTitle": "Motion Designer & Directeur Artistique Freelance",
+          "url": "https://www.fabienbouadi.com/about",
+          "image": "https://www.fabienbouadi.com/images/fabien-bouadi-portrait.png",
+          "sameAs": [
+            "https://www.instagram.com/fabienbouadi/",
+            "https://www.linkedin.com/in/fabienbouadi/",
+            "https://vimeo.com/fabienbouadi"
+          ],
+          "description": "Artiste 3D et Motion Designer avec 10 ans d'expérience au service des marques de luxe (Dior, Prada, YSL). Spécialiste direction artistique vidéo à Paris.",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Paris",
+            "addressCountry": "FR"
+          },
+          "worksFor": {
+            "@type": "Organization",
+            "name": "Freelance"
+          }
+        }}
+      />
 
-      {/* ── Mobile : image en premier, puis liste ── */}
-      <div className="md:hidden mb-8">
-        <div className="relative w-full aspect-[4/3] overflow-hidden rounded-lg bg-[#EBEBEB]">
-          {/* Base Layer — fondu de secours en arrière-plan */}
-          <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
-            {SERVICES.map((s, i) => (
-              <img key={`bg-${s.image}`} src={s.image} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ opacity: active === i ? 1 : 0, transition: 'opacity 0.65s ease-in-out' }} />
-            ))}
-          </div>
-          {/* GSAP Wipe Layer — balayage horizontal premier plan */}
-          <div ref={containerMobileRef} className="absolute inset-0 w-full h-full z-10 pointer-events-none">
-            {SERVICES.map((s) => (
-              <img key={s.image} src={s.image} alt={s.label} className="absolute inset-0 w-full h-full object-cover" />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-start">
-        <div>
-          {/* ── Liste services — tap sur mobile, hover desktop ── */}
-          <nav>
-            {SERVICES.map((s, i) => (
-              <div key={s.num}
-                onClick={() => setActive(i)}
-                className="group relative flex items-start cursor-pointer">
-                <div className="relative overflow-hidden leading-none">
-                  <h2 className={[
-                    'block text-[11vw] md:text-[5.8vw] font-lausanne font-medium tracking-tighter uppercase leading-[1.12]',
-                    'transition-colors duration-500',
-                    active === i ? 'text-[#1A1A1A]' : 'text-[#1A1A1A]/25',
-                  ].join(' ')}>
-                    {s.label}
-                  </h2>
-                  <span className={[
-                    'absolute bottom-[4px] left-0 h-[2px] bg-[#1A1A1A]',
-                    'transition-all duration-700 ease-[cubic-bezier(.77,0,.175,1)]',
-                    active === i ? 'w-full' : 'w-0',
-                  ].join(' ')} />
-                </div>
-                <span className={[
-                  'text-[2.8vw] md:text-[1.1vw] font-medium mt-[1.6vw] md:mt-[0.8vw] ml-1 flex-shrink-0',
-                  'transition-colors duration-500',
-                  active === i ? 'text-[#1A1A1A]/60' : 'text-[#1A1A1A]/20',
-                ].join(' ')}>
-                  {s.num}
-                </span>
+      <article ref={heroRef} className="bg-white text-[#1A1A1A] font-sans select-none pb-24">
+        
+        {/* HERO SECTION */}
+        <section className="min-h-screen pt-32 pb-16 flex flex-col justify-between">
+          <div className="grid grid-cols-6 md:grid-cols-12 gap-x-4 md:gap-x-8 px-4 md:px-10 w-full mx-auto">
+            <h1 className="col-span-6 md:col-span-12 text-[15vw] leading-[0.8] uppercase font-lausanne font-medium tracking-tight">
+              <div className="overflow-hidden">
+                <LuxuryTitle text="3D ARTIST" isActive={isHeroActive} />
               </div>
-            ))}
-          </nav>
-
-          {/* Description — hauteur auto sur mobile, fixe desktop */}
-          <div className="mt-8 md:mt-12 min-h-[4rem] md:h-[5rem] relative">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={active}
-                initial={{ opacity: 0, y: 10 }}
+              <div className="overflow-hidden px-4 md:px-12 -ml-4 md:-ml-12 mt-[-0.1em]">
+                <em className="block font-presura italic lowercase text-[#1A1A1A]">
+                  <LuxuryTitle text="passionate" isActive={isHeroActive} delay={0.2} />
+                </em>
+              </div>
+            </h1>
+          </div>
+          
+          <div className="grid grid-cols-6 md:grid-cols-12 gap-x-4 md:gap-x-8 px-4 md:px-10 w-full mx-auto items-end mt-16 md:mt-0">
+            <div className="col-span-6 md:col-span-7 flex md:justify-end order-first md:order-last">
+              <h2 className="text-[15vw] leading-[0.8] uppercase font-lausanne font-medium flex flex-col md:flex-row items-start md:items-center">
+                <motion.figure 
+                  initial={{ opacity: 0, clipPath: 'inset(100% 0 0 0)' }}
+                  animate={{ opacity: 1, clipPath: 'inset(0% 0 0 0)' }}
+                  transition={{ duration: 1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  className="relative w-[50vw] md:w-[22vw] aspect-[2/1] mt-4 md:mt-6 md:mr-8 mb-4 md:mb-0 overflow-hidden"
+                >
+                  <img src="/images/fabien-bouadi-portrait.png" className="absolute inset-0 w-full h-full object-cover object-top" alt="Fabien Bouadi" />
+                </motion.figure>
+                <div>
+                  <div className="block overflow-hidden"><LuxuryTitle text="ABOUT" isActive={isHeroActive} delay={0.3} /></div>
+                  <div className="block mt-[-0.1em] overflow-hidden"><LuxuryTitle text="MOTION" isActive={isHeroActive} delay={0.4} /></div>
+                </div>
+              </h2>
+            </div>
+            <div className="col-span-6 md:col-start-1 md:col-span-5 pb-4 order-last md:order-first mt-12 md:mt-0">
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="md:absolute md:inset-0 space-y-2 text-sm font-lausanne text-[#1A1A1A]/60"
+                transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
+                className="max-w-md text-[18px] md:text-[1.2vw] font-lausanne leading-relaxed text-[#1A1A1A]/80"
               >
-                <p className="font-medium text-[#1A1A1A]">{SERVICES[active].headline}</p>
-                <p className="leading-relaxed">{SERVICES[active].body}</p>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        </div>
-
-        {/* Image desktop uniquement */}
-        <div className="hidden md:block relative w-full aspect-[3/4] overflow-hidden bg-[#EBEBEB]">
-          {/* Base Layer — fondu de secours en arrière-plan */}
-          <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
-            {SERVICES.map((s, i) => (
-              <img key={`bg-${s.image}`} src={s.image} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ opacity: active === i ? 1 : 0, transition: 'opacity 0.65s ease-in-out' }} />
-            ))}
-          </div>
-          {/* GSAP Wipe Layer — balayage horizontal premier plan */}
-          <div ref={containerDesktopRef} className="absolute inset-0 w-full h-full z-10 pointer-events-none">
-            {SERVICES.map((s) => (
-              <img key={s.image} src={s.image} alt={s.label} className="absolute inset-0 w-full h-full object-cover" />
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ── Page ──────────────────────────────────────────────────────
-export default function About() {
-  useNavigateWithMask();
-  return (
-    <PageTransition>
-      <Helmet>
-        <title>À Propos — Fabien Bouadi | Motion Designer Freelance</title>
-        <meta name="description" content="Découvrez le parcours de Fabien Bouadi, 3D Artist et Motion Designer. 10 ans d'expérience au service du luxe et de l'innovation." />
-        <meta property="og:title" content="À Propos — Fabien Bouadi" />
-        <meta property="og:description" content="Passionné de design et de technologie, je donne vie aux idées à travers le mouvement." />
-      </Helmet>
-
-      <article className="bg-[#F4F4F0] text-[#1A1A1A] font-sans select-none">
-
-        {/* HERO */}
-        <header className="px-4 md:px-6 lg:px-8 xl:px-12 pt-32 md:pt-40 pb-10 md:pb-14">
-          <div className="overflow-hidden pb-2">
-            <motion.h1
-              initial={{ y: '115%' }} animate={{ y: 0 }}
-              transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-              className="text-[15vw] md:text-[10.5vw] leading-[0.88] font-lausanne font-medium tracking-tight uppercase"
-            >
-              3D Artist
-            </motion.h1>
-          </div>
-          <div className="overflow-hidden pb-2 mb-8 md:mb-10">
-            <motion.div
-              initial={{ y: '115%' }} animate={{ y: 0 }}
-              transition={{ duration: 1.1, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-              className="text-[15vw] md:text-[10.5vw] leading-[0.88] font-lausanne font-light italic tracking-tight"
-            >
-              passionné
-            </motion.div>
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.38, ease: [0.22, 1, 0.36, 1] }}
-          >
-            {/* Mobile */}
-            <div className="flex flex-col gap-6 md:hidden">
-              <p className="text-sm font-lausanne leading-relaxed text-[#1A1A1A]/60">
-                Salut, je suis Fabien, Motion Designer devenu artiste 3D. Je donne vie
-                aux marques et aux produits grâce à la puissance de l'image de synthèse.
-              </p>
-              <div className="flex items-center gap-4">
-                <div className="w-[52px] h-[68px] overflow-hidden flex-shrink-0">
-                  <img src="https://cdn.prod.website-files.com/5dbd309604f8b2d48b6dbe8c/650b1d066d46e0ba9b3802ae_faded.png"
-                    alt="Fabien Bouadi" className="w-full h-full object-cover" />
-                </div>
-                <div className="leading-[0.9] font-medium uppercase tracking-tight">
-                  <div className="text-[8vw] font-lausanne">Motion designer</div>
-                </div>
-              </div>
+                Salut, je suis Fabien, Motion Designer devenu artiste 3D. Je donne vie aux marques et aux produits grâce à la puissance de l'image de synthèse. Toujours à la recherche de nouvelles esthétiques.
+              </motion.p>
             </div>
-
-            {/* Desktop */}
-            <div className="hidden md:flex items-end justify-between gap-6">
-              <p className="text-sm font-lausanne leading-relaxed text-[#1A1A1A]/60 max-w-[260px]">
-                Salut, je suis Fabien, Motion Designer devenu artiste 3D. Je donne vie
-                aux marques et aux produits grâce à la puissance de l'image de synthèse.
-              </p>
-              <div className="flex items-end gap-5 flex-shrink-0">
-                <div className="w-[80px] h-[105px] overflow-hidden flex-shrink-0">
-                  <img src="https://cdn.prod.website-files.com/5dbd309604f8b2d48b6dbe8c/650b1d066d46e0ba9b3802ae_faded.png"
-                    alt="Fabien Bouadi" className="w-full h-full object-cover" />
-                </div>
-                <div className="leading-[0.85] font-medium uppercase tracking-tight">
-                  <div className="text-[6.5vw] font-lausanne">Motion designer</div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </header>
+          </div>
+        </section>
 
         {/* IMAGE PLEINE LARGEUR */}
-        <ParallaxImage
-          src="https://images.pexels.com/photos/1366909/pexels-photo-1366909.jpeg?auto=compress&cs=tinysrgb&w=2400"
-          alt="Motion Design — Fabien Bouadi"
-          className="w-full h-[60vw] md:h-[65vh]"
-        />
+        <div className="relative md:px-10 mb-32 md:mb-48">
+          <div className="relative overflow-hidden h-[50vh] md:h-screen w-full rounded-none md:rounded-xl">
+            <ParallaxImage 
+              src="https://images.pexels.com/photos/1366909/pexels-photo-1366909.jpeg?auto=compress&cs=tinysrgb&w=2400" 
+              alt="Motion Design" 
+              className="absolute inset-0 w-full h-full object-cover" 
+            />
+          </div>
+        </div>
 
         {/* 01. PERSONAL STORY */}
-        <section className="px-4 md:px-6 lg:px-8 xl:px-12 py-16 md:py-28 border-t border-[#1A1A1A]/10">
-          <div className="flex gap-4 md:gap-8 mb-8 md:mb-16">
-            <div className="w-8 md:w-20 flex-shrink-0 text-[12px] font-lausanne font-medium opacity-40 pt-1">01.</div>
+        <section className="grid grid-cols-6 md:grid-cols-12 gap-x-4 md:gap-x-8 px-4 md:px-10 w-full mx-auto items-start mb-32 md:mb-48">
+          <div className="col-span-6 md:col-span-3 text-[14px] font-presura font-medium mb-8 md:mb-0">01.</div>
+          <div className="col-span-6 md:col-span-9">
             <Reveal>
-              <h2 className="text-[7vw] md:text-[3vw] leading-[1.1] font-lausanne font-medium tracking-tight uppercase">
-                Des études en design graphique<br/>
-                à devenir{' '}<em className="font-light italic">artiste</em>{' '}3D<br/>
-                <em className="font-light italic">autodidacte</em>
+              <h2 className="text-[10vw] md:text-[4.5vw] leading-[0.9] font-lausanne font-medium uppercase tracking-tight text-balance">
+                DU DESIGN GRAPHIQUE À LA <em className="font-presura italic lowercase text-[1.1em] tracking-normal">direction</em> ARTISTIQUE ET AU <em className="font-presura italic lowercase text-[1.1em] tracking-normal">motion</em> 3D
               </h2>
             </Reveal>
-          </div>
-          <div className="flex gap-4 md:gap-8">
-            <div className="w-8 md:w-20 flex-shrink-0" />
-            <div className="flex flex-col md:flex-row gap-6 md:gap-10 flex-1">
-              <div className="md:w-44 flex-shrink-0">
-                <span className="text-[12px] uppercase tracking-widest font-lausanne opacity-40">[Histoire personnelle]</span>
-              </div>
-              <Reveal delay={80} className="flex-1 space-y-4 text-sm font-lausanne leading-relaxed text-[#1A1A1A]/60">
-                <p className="font-medium text-[#1A1A1A]">Toujours en train d'apprendre.</p>
-                <p>Directeur Artistique / Graphiste Publicitaire de formation, je termine mon cursus chez BuyBuy, magazine de mode et de luxe. Cette expérience confirme mon goût pour l'image.</p>
-                <p>Après plus d'une année passée à l'Agence Vertu comme Graphiste, j'intègre l'agence Malherbe Design en tant que Directeur Artistique / Motion Designer.</p>
-                <p>Installé désormais comme Directeur Artistique / Motion Designer Freelance, je me spécialise dans l'univers du luxe pour des maisons telles que Dior, Guerlain, Lancôme, Prada, Cacharel, Kenzo, Nina Ricci, Yves Saint Laurent, Courrèges, Ruinart…</p>
+            <div className="grid grid-cols-1 md:grid-cols-9 md:gap-x-10 mt-16 md:mt-24">
+              <Reveal delay={100} className="col-span-1 md:col-span-3">
+                <h3 className="uppercase text-[12px] font-presura font-medium tracking-widest mb-8 md:mb-0 opacity-40">
+                  [Mon parcours]
+                </h3>
+              </Reveal>
+              <Reveal delay={200} className="col-span-1 md:col-span-4 space-y-8 text-[18px] md:text-[1.2vw] font-lausanne leading-relaxed text-[#1A1A1A]/70">
+                <p>
+                  Directeur Artistique / Graphiste Publicitaire de formation, je termine mon cursus chez BuyBuy (Magazine de mode et de luxe).
+                </p>
+                <p>
+                  Cette expérience confirme mon goût pour l’image. Après plus d’une année passée à l’Agence Vertu comme Graphiste, j’intègre l’agence Malherbe Design en tant que Directeur Artistique / Motion Designer.
+                </p>
+                <p>
+                  Enfin, je m’installe comme Directeur artistique / Motion Designer Freelance et me spécialise dans l’univers du luxe pour des marques telles que :
+                </p>
+                <p className="text-[#1A1A1A] font-medium">
+                  Dior, Guerlain, Lancôme, Prada, Cacharel, Kenzo, Nina Ricci, Yves Saint Laurent, Courrèges, Ruinart…
+                </p>
               </Reveal>
             </div>
           </div>
         </section>
 
         {/* 02. SERVICES */}
-        <ServicesSlider />
-
-        {/* 03. CLIENT LIST */}
-        <section className="px-4 md:px-6 lg:px-8 xl:px-12 py-16 md:py-28 border-t border-[#1A1A1A]/10">
-          <div className="flex gap-4 md:gap-8 mb-6 md:mb-10">
-            <div className="w-8 md:w-20 flex-shrink-0 text-[12px] font-lausanne font-medium opacity-40 pt-1">03.</div>
-            <Reveal>
-              <div>
-                <h2 className="text-[7vw] md:text-[3vw] leading-[1.08] font-lausanne font-medium tracking-tight uppercase">Clients & Agences</h2>
-                <h2 className="text-[7vw] md:text-[3vw] leading-[1.08] font-lausanne font-light italic tracking-tight">avec qui j'ai travaillé</h2>
+        <section className="relative px-4 md:px-10 w-full mx-auto mb-32 md:mb-48 z-10">
+          <div className="grid grid-cols-6 md:grid-cols-12 gap-x-4 md:gap-x-8">
+            <div className="col-span-6 flex flex-col justify-between pb-10">
+              <div className="flex flex-col">
+                <h4 className="uppercase text-[12px] font-presura font-medium tracking-widest opacity-40 mb-12 md:mb-20">[Services list]</h4>
+                <nav className="relative flex flex-col items-start gap-y-6 md:gap-y-10">
+                  {SERVICES.map((s, i) => (
+                    <button 
+                      key={i} 
+                      onClick={() => setActiveService(i)} 
+                      className={cn(
+                        "text-[10vw] md:text-[4vw] leading-[0.9] uppercase font-lausanne font-medium flex relative transition-all duration-300",
+                        activeService === i ? 'opacity-100' : 'opacity-20 hover:opacity-60'
+                      )}
+                    >
+                      <span className={cn("border-b-2 transition-colors pb-1", activeService === i ? 'border-[#1A1A1A]' : 'border-transparent')}>{s.label}</span>
+                      <div className="absolute top-0 left-full text-[14px] md:text-[0.3em] pl-4 font-presura opacity-50">{s.num}</div>
+                    </button>
+                  ))}
+                </nav>
               </div>
-            </Reveal>
-          </div>
-          <div className="flex gap-4 md:gap-8">
-            <div className="w-8 md:w-20 flex-shrink-0" />
-            <div className="flex-1">
-              <Reveal delay={60}>
-                <p className="text-sm font-lausanne text-[#1A1A1A]/60 mb-8 md:mb-12">
-                  <span className="font-medium text-[#1A1A1A]">Plus de 10 ans d'expérience.</span>{' '}
-                  Voici quelques maisons et agences avec lesquelles j'ai eu le plaisir de collaborer.
-                </p>
-              </Reveal>
-              <Reveal delay={120}>
-                <div className="flex flex-wrap gap-8 md:gap-16">
-                  <div>
-                    <span className="text-[12px] uppercase tracking-widest font-lausanne opacity-40 block mb-3">[Clients]</span>
-                    {CLIENTS.map((c) => (
-                      <div key={c} className="flex items-center gap-2 text-sm font-lausanne font-medium py-[3px]">
-                        <span className="opacity-40">→</span>{c}
-                      </div>
-                    ))}
-                  </div>
-                  <div>
-                    <span className="text-[12px] uppercase tracking-widest font-lausanne opacity-40 block mb-3">[Agences & Studios]</span>
-                    {PARTNERS.map((p) => (
-                      <a key={p.name} href={p.url} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm font-lausanne font-medium py-[3px] hover:opacity-40 transition-opacity">
-                        <span className="opacity-40">→</span>{p.name}
-                      </a>
-                    ))}
-                  </div>
-                  <div>
-                    <span className="text-[12px] uppercase tracking-widest font-lausanne opacity-40 block mb-3">[Compétences]</span>
-                    {SKILLS.map((s) => (
-                      <div key={s} className="flex items-center gap-2 text-sm font-lausanne font-medium py-[3px]">
-                        <span className="opacity-40">→</span>{s}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </Reveal>
+              
+              <div className="relative w-full mt-24 md:mt-32">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeService}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.4 }}
+                    className="md:pr-32"
+                  >
+                    <div className="mb-6 font-lausanne font-medium text-[20px] md:text-[1.5vw]">{SERVICES[activeService].headline}</div>
+                    <p className="text-[#1A1A1A]/60 font-lausanne text-[18px] md:text-[1.2vw] leading-relaxed">
+                      {SERVICES[activeService].body}
+                    </p>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </div>
+            
+            <div className="col-span-6 relative mt-16 md:mt-0">
+              <div className="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-[#EBEBEB]">
+                {SERVICES.map((s, i) => (
+                  <img 
+                    key={i} 
+                    src={s.image} 
+                    alt={s.label} 
+                    className={cn(
+                      "absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out",
+                      activeService === i ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                    )} 
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* IMAGE + CTA */}
-        <section className="border-t border-[#1A1A1A]/10 grid grid-cols-1 md:grid-cols-2">
-          <ParallaxImage
-            src="https://images.pexels.com/photos/66134/pexels-photo-66134.jpeg?auto=compress&cs=tinysrgb&w=1200"
-            alt="Studio — Fabien Bouadi"
-            className="aspect-[4/3] md:aspect-auto md:min-h-[60vh]"
-          />
-          <div className="px-4 md:px-6 lg:px-8 xl:px-12 py-12 md:py-20 flex flex-col gap-10 md:justify-between md:min-h-0">
+        {/* 03. CLIENT LIST & PARTNERS */}
+        <section className="grid grid-cols-6 md:grid-cols-12 gap-x-4 md:gap-x-8 px-4 md:px-10 w-full mx-auto items-start mb-32 md:mb-48">
+          <div className="col-span-6 md:col-span-3 text-[14px] font-presura font-medium mb-8 md:mb-0">03.</div>
+          <div className="col-span-6 md:col-span-9 mt-10 md:mt-0">
             <Reveal>
-              <h2 className="text-[10vw] md:text-[3.8vw] leading-[1.1] font-lausanne font-medium tracking-tight uppercase">
-                Envie de<br/>
-                <em className="font-light italic">travailler</em><br/>
-                ensemble<br/>
-                sur <em className="font-light italic">votre</em><br/>
-                projet ?
+              <h2 className="text-[10vw] md:text-[4.5vw] leading-[0.9] font-lausanne font-medium uppercase tracking-tight">
+                CLIENT LIST<br />
+                <em className="font-presura italic lowercase text-[1.1em] tracking-normal">and partners</em>
               </h2>
             </Reveal>
-            <Reveal delay={100} className="space-y-4 text-sm font-lausanne text-[#1A1A1A]/60">
-              <p>Vous souhaitez donner vie à votre marque ? Je travaille avec un nombre limité de clients chaque année pour créer quelque chose d'unique.</p>
-              <a href="mailto:f.bouadi@gmail.com"
-                className="block font-medium text-[#1A1A1A] hover:opacity-40 transition-opacity">
-                Travaillons ensemble →
+            <Reveal delay={100}>
+              <div className="w-full md:max-w-2xl mt-16 md:mt-24 text-[18px] md:text-[1.2vw] font-lausanne text-[#1A1A1A]/70 leading-relaxed">
+                <p><strong className="text-[#1A1A1A] font-medium">Les plus belles maisons.</strong></p>
+                <p className="mt-4">Voici une liste non-exhaustive des clients et agences partenaires avec qui j'ai eu l'opportunité de collaborer au fil des années. Discutons ensemble pour ajouter votre nom à cette liste.</p>
+              </div>
+            </Reveal>
+            <Reveal delay={200}>
+              <div className="w-full md:max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-16 mt-16 md:mt-24">
+                <div>
+                  <span className="flex uppercase text-[12px] font-presura font-medium opacity-40 mb-10 tracking-widest">[Client List]</span>
+                  <nav className="flex flex-col gap-1">
+                    {CLIENTS.map(c => (
+                      <div key={c} className="font-lausanne font-medium text-[16px] md:text-[1.2vw] flex items-center overflow-hidden h-10 relative cursor-default group">
+                        <div className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] flex items-center translate-x-[-1.5rem] group-hover:translate-x-0">
+                          <span className="w-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">→</span>
+                          <span className="group-hover:text-[#1A1A1A] text-[#1A1A1A]/70 transition-colors duration-300">{c}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </nav>
+                </div>
+                <div>
+                  <span className="flex uppercase text-[12px] font-presura font-medium opacity-40 mb-10 tracking-widest">[Partners]</span>
+                  <nav className="flex flex-col gap-1">
+                    {PARTNERS.map(p => (
+                      <a key={p.name} href={p.url} target="_blank" rel="noreferrer" className="font-lausanne font-medium text-[16px] md:text-[1.2vw] flex items-center overflow-hidden h-10 relative group">
+                        <div className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] flex items-center translate-x-[-1.5rem] group-hover:translate-x-0">
+                          <span className="w-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">→</span>
+                          <span className="group-hover:text-[#1A1A1A] text-[#1A1A1A]/70 transition-colors duration-300">{p.name}</span>
+                        </div>
+                      </a>
+                    ))}
+                  </nav>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* 04. CONTACT SECTION */}
+        <section className="grid grid-cols-6 md:grid-cols-12 gap-x-4 md:gap-x-8 px-4 md:px-10 w-full mx-auto items-start mb-20 md:mb-32">
+          <div className="col-span-6 mb-16 md:mb-0">
+            <div className="relative overflow-hidden aspect-[4/5] md:aspect-auto md:h-[90vh] w-full rounded-xl">
+              <ParallaxImage src="https://images.pexels.com/photos/66134/pexels-photo-66134.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Work together" className="absolute inset-0 w-full h-full object-cover" />
+            </div>
+          </div>
+          <div className="col-span-6 md:col-start-8 md:col-span-5 md:-mt-8 flex flex-col justify-center">
+            <Reveal>
+              <h2 className="text-[10vw] md:text-[4vw] leading-[0.9] font-lausanne font-medium uppercase tracking-tight text-balance">
+                Want to<br/>
+                <em className="font-presura italic lowercase text-[1.1em] tracking-normal">work</em><br/>
+                together<br/>
+                ON <em className="font-presura italic lowercase text-[1.1em] tracking-normal">your</em><br/>
+                PROJECT?
+              </h2>
+            </Reveal>
+            <Reveal delay={100}>
+              <div className="mt-10 md:mt-16 text-[18px] md:text-[1.2vw] font-lausanne leading-relaxed text-[#1A1A1A]/70 md:pr-12">
+                <p>Vous souhaitez donner vie à votre marque ? Je travaille avec un nombre limité de clients chaque année pour créer quelque chose d'unique et sur mesure. Discutons-en ensemble.</p>
+              </div>
+              <a href="mailto:f.bouadi@gmail.com" className="inline-block mt-10 md:mt-16 font-lausanne font-medium text-[16px] md:text-[1vw] border-b-2 border-[#1A1A1A] pb-1 w-max hover:opacity-50 transition-opacity uppercase tracking-wide">
+                Let's work together
               </a>
             </Reveal>
           </div>

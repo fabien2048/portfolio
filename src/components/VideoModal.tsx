@@ -50,6 +50,23 @@ export default function VideoModal({ isOpen, onClose, videoUrl }: VideoModalProp
             if (videoRef.current) {
                 videoRef.current.play().catch(err => console.error("Video play failed:", err));
             }
+
+            // ── MediaSession API Modal — Neutralise les contrôles système (Génie) ──
+            const v = videoRef.current;
+            if (v && 'mediaSession' in navigator) {
+                const noop = () => {};
+                navigator.mediaSession.playbackState = 'playing';
+                navigator.mediaSession.setActionHandler('seekbackward', noop);
+                navigator.mediaSession.setActionHandler('seekforward', noop);
+                navigator.mediaSession.setActionHandler('seekto', noop);
+                try {
+                    navigator.mediaSession.setPositionState({
+                        duration: Infinity,
+                        playbackRate: 1,
+                        position: 0
+                    });
+                } catch (e) {}
+            }
         } else if (!isOpen && shouldRender && backdropRef.current && modalRef.current) {
             // Close animation
             const tl = gsap.timeline({
@@ -130,17 +147,33 @@ export default function VideoModal({ isOpen, onClose, videoUrl }: VideoModalProp
             <div
                 ref={modalRef}
                 onClick={(e) => e.stopPropagation()}
-                className="relative w-full aspect-video bg-black shadow-[0_0_100px_rgba(0,0,0,0.5)] overflow-hidden group"
+                className="relative w-full aspect-video bg-black overflow-hidden group"
             >
-                <video
-                    ref={videoRef}
-                    src={videoUrl}
-                    className="w-full h-full object-contain"
-                    onTimeUpdate={handleTimeUpdate}
-                    onLoadedMetadata={handleLoadedMetadata}
+                <div
+                    className="relative w-full h-full cursor-pointer"
                     onClick={togglePlay}
-                    loop
-                />
+                >
+                    <video
+                        ref={videoRef}
+                        src={videoUrl}
+                        className="w-full h-full object-contain pointer-events-none select-none"
+                        onTimeUpdate={handleTimeUpdate}
+                        onLoadedMetadata={handleLoadedMetadata}
+                        loop
+                        muted={isMuted}
+                        playsInline
+                        {...({ 
+                            disablePictureInPicture: true, 
+                            disableRemotePlayback: true,
+                            'x-webkit-airplay': 'deny',
+                            'webkit-playsinline': 'true',
+                            'disablevideopopout': 'true'
+                        } as any)}
+                        controlsList="nodownload nofullscreen noremoteplayback noplaybackrate noseek nopip"
+                    />
+                    {/* Bouclier physique anti-Opera/Safari */}
+                    <div className="absolute inset-0 z-20 bg-transparent pointer-events-auto" onContextMenu={e => e.preventDefault()} />
+                </div>
 
                 {/* Top Close Button */}
                 <button
@@ -196,7 +229,7 @@ export default function VideoModal({ isOpen, onClose, videoUrl }: VideoModalProp
                 <div className="absolute inset-x-0 bottom-24 flex justify-center pointer-events-none">
                     <button
                         onClick={onClose}
-                        className="bg-white/5 backdrop-blur-md px-10 py-3 rounded-full text-white text-[12px] uppercase tracking-[0.3em] font-lausanne font-medium border border-white/10 pointer-events-auto hover:bg-white hover:text-black transition-all transform translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 duration-500"
+                        className="bg-white/5 backdrop-blur-md px-10 py-3 rounded-full text-white text-[12px] uppercase tracking-[0.3em] font-presura font-medium border border-white/10 pointer-events-auto hover:bg-white hover:text-black transition-all transform translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 duration-500"
                     >
                         Close
                     </button>

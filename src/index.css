@@ -2,11 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Lausanne 300 ────────────────────────────────── */
+/* ── PP Neue Montreal (Aliased to Lausanne for seamless replacement) ────────────────────────────────── */
 @font-face {
   font-family: 'Lausanne';
-  src: url('https://github.com/projectname94/project-feeeels/raw/refs/heads/master/assets/fonts/300/Lausanne-300.woff') format('woff');
-  font-weight: 300;
+  src: url('/fonts/pp-neue/PPNeueMontreal-Book.woff') format('woff');
+  font-weight: 300 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Lausanne';
+  src: url('/fonts/pp-neue/PPNeueMontreal-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Lausanne';
+  src: url('/fonts/pp-neue/PPNeueMontreal-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/pp-neue/PPNeueMontreal-Book.woff') format('woff');
+  font-weight: 300 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/pp-neue/PPNeueMontreal-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/pp-neue/PPNeueMontreal-Bold.woff') format('woff');
+  font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
@@ -19,6 +59,7 @@
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'ABC Diatype';
   src: url('https://raw.githubusercontent.com/7inug1/7inug1.github.io/master/DINAMO_fonts/ABCDiatypeSemi-Mono-Regular-Trial.woff') format('woff');
@@ -27,21 +68,65 @@
   font-display: swap;
 }
 
-/* ── Monument Grotesk Mono ───────────────────────── */
+
+
+/* ── ABC Plus (Version Two) ────────────────────────── */
 @font-face {
-  font-family: 'MonumentMono';
-  src: url('./assets/fonts/MonumentGrotesk-Mono.woff2') format('woff2'),
-       url('./assets/fonts/MonumentGrotesk-Mono.woff') format('woff');
+  font-family: 'ABCPlus';
+  src: url('./assets/fonts/ABC-Version-Two.woff2') format('woff2'),
+       url('./assets/fonts/ABC-Version-Two.woff') format('woff'),
+       url('./assets/fonts/ABC-Version-Two.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── Basier Square Mono ──────────────────────────── */
+@font-face {
+  font-family: 'Basier';
+  src: url('./assets/fonts/basiersquaremono-regular-webfont.woff2') format('woff2'),
+       url('./assets/fonts/basiersquaremono-regular-webfont.woff') format('woff');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── GT Presura Mono ──────────────────────────────── */
+@font-face {
+  font-family: 'GT Presura';
+  src: url('/fonts/gt-presura/GT-Pressura-Mono-Regular.woff') format('woff');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'GT Presura';
+  src: url('/fonts/gt-presura/GT-Pressura-Mono-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Force Tailwind JIT to include GT Presura utility */
+.font-presura {
+  font-family: 'GT Presura', monospace !important;
+}
+
 
 /* ── Scrollbar ───────────────────────────────────── */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #1A1A1A40; border-radius: 2px; }
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1A1A1A40;
+  border-radius: 2px;
+}
 
 /* ── Sélection ───────────────────────────────────── */
 ::selection {
@@ -50,10 +135,11 @@
 }
 
 /* ── Body ────────────────────────────────────────── */
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
-  background-color: #0A0A0A;
+  font-family: 'Lausanne', sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -62,6 +148,32 @@ html, body {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+}
+
+/* ── Scrollbar (Grey Thumb, Transparent Track) ── */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+  border-radius: 20px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Firefox */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }
 
 /* ── Texture de fond globale ── */
@@ -84,16 +196,22 @@ a {
   text-decoration: none;
 }
 
+/* ── Images (Hide ALT text visually) ─────────────── */
+img {
+  color: transparent;
+}
+
 /* ── Performance GPU ─────────────────────────────── */
 /* ✅ FIX 4 : will-change pré-composite les éléments animés sur le GPU */
 .hero-video-wrapper {
   will-change: clip-path, transform;
 }
+
 .project-thumb {
   will-change: opacity;
 }
 
-/* ── Masquer les contrôles natifs vidéo (rewind, skip, overlay) ── */
+/* ── Masquage "Génie" — Éradication totale des contrôles natifs (Chrome, Safari, Opera, Edge) ── */
 video::-webkit-media-controls,
 video::-webkit-media-controls-panel,
 video::-webkit-media-controls-play-button,
@@ -106,13 +224,98 @@ video::-webkit-media-controls-mute-button,
 video::-webkit-media-controls-toggle-closed-captions-button,
 video::-webkit-media-controls-volume-slider,
 video::-webkit-media-controls-rewind-button,
-video::-webkit-media-controls-return-to-realtime-button,
+video::-webkit-media-controls-fast-forward-button,
+video::-webkit-media-controls-jump-back-button,
+video::-webkit-media-controls-jump-forward-button,
 video::-webkit-media-controls-seek-back-button,
 video::-webkit-media-controls-seek-forward-button,
+video::-webkit-media-controls-return-to-realtime-button,
 video::-webkit-media-controls-fullscreen-button,
-video::-webkit-media-controls-enclosure {
+video::-webkit-media-controls-picture-in-picture-button,
+video::-webkit-media-controls-remote-playback-button,
+video::-webkit-media-controls-enclosure,
+video::-internal-media-controls-button-bar,
+video::-internal-media-controls-overflow-button {
   display: none !important;
   -webkit-appearance: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* ── SONA TITLE ANIMATION ──────────────────────── */
+:root {
+  --sona-dur: 1.5s;
+  --sona-ease: cubic-bezier(.075, .82, .165, 1);
+  --ease-custom: cubic-bezier(.39, .575, .565, 1);
+}
+
+.split-title .word {
+  display: inline-flex;
+  overflow: hidden;
+  vertical-align: baseline;
+  /* Massive safety zone to prevent any clipping (italics, ascenders, descenders) */
+  padding: 0.5em 0.25em;
+  margin: -0.50em -0.25em;
+}
+
+.split-title .char {
+  display: inline-flex;
+  transform: translateY(150%);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.split-title.is-active .char {
+  transition: transform var(--sona-dur) var(--sona-ease), opacity var(--sona-dur) var(--sona-ease);
+  transition-delay: calc(0.075s * var(--char-index));
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* ── SQUIRCLES (Subtle Corners) ── */
+.squircle {
+  /* Balanced 4px radius for subtle softness */
+  border-radius: var(--squircle-radius, 4px);
+}
+
+/* Global Application Full-Bleed */
+#root > div {
+  margin: 0;
+  border-radius: 0;
+  overflow: hidden;
+  min-height: 100vh !important;
+}
+
+/* ── Transition Opacity (Custom) ── */
+.transition-opacity-custom {
+  transition: opacity .2s var(--ease-custom);
+}
+
+.transition-opacity-instant {
+  transition: opacity 0s;
+}
+
+/* ── Fade Overlay Transition (Editorial) ── */
+.fade-overlay-enter-active {
+  transition: opacity .6s cubic-bezier(.445, .05, .55, .95);
+}
+.fade-overlay-leave-active {
+  transition: opacity .6s cubic-bezier(.445, .05, .55, .95) .3s; /* delay 300ms en sortie */
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+/* ── Fullscreen Video Override ────────────────────────────────── */
+body.is-video-fullscreen header,
+body.is-video-fullscreen nav,
+body.is-video-fullscreen [class*="nav"],
+body.is-video-fullscreen [class*="Nav"] {
+  display: none !important;
   opacity: 0 !important;
   pointer-events: none !important;
 }
