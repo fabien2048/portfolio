@@ -22,13 +22,7 @@ export default function PageTransition({
   const navType      = useNavigationType();
   const location     = useLocation();
 
-  // Bloque le double-fire de React StrictMode (dev uniquement)
-  const hasRun = useRef(false);
-
   useLayoutEffect(() => {
-    if (hasRun.current) return;
-    hasRun.current = true;
-
     const container = containerRef.current;
     if (!container) return;
 
